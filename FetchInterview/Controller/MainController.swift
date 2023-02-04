@@ -9,21 +9,26 @@ import UIKit
 
 class MainController: UIViewController {
     // MARK: - Properties
+    // storing all fetched list items
     var allLists = [List]() {
         didSet {
+            // sorting list items based on their id
             allLists = allLists.sorted { $0.id < $1.id }
             
+            // shifting to main thread before updating UI
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
         }
     }
     
+    // tableView for displaying all fetched item, initialised in init
     var tableView: UITableView!
     
     
     // MARK: - Init
     init() {
+        // tableView init
         self.tableView = UITableView(frame: .zero, style: .grouped)
         super.init(nibName: nil, bundle: nil)
     }
@@ -36,7 +41,9 @@ class MainController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // calling Service class singleton variable to API call
         Service.shared.fetchList { [weak self] status, list in
+            // checking if API call was successful or not
             if status {
                 guard let list = list else { return }
                 self?.allLists = list
@@ -45,16 +52,20 @@ class MainController: UIViewController {
             }
         }
         
-        
+        // setting tableView properties
         tableView.backgroundColor = .white
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = true
         
+        // registering tableView cell 'ItemCell' for reuse
         tableView.register(ItemCell.self, forCellReuseIdentifier: ItemCell.reuseIdentifier)
         
-//        tableView.sectionHeaderTopPadding = 0
         
+        // adding tableView in main view's subview
         self.view.addSubview(tableView)
+        
+        // fill parent view with tableview (implementation in Extensions.swift)
         tableView.fillSuperview()
     }
     
@@ -66,10 +77,22 @@ class MainController: UIViewController {
     // MARK: - Helper Functions
 }
 
+// MARK: - Delegate UITableViewDelegate
 extension MainController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // simple alert popup displaying basic info when any cell is selected
+        let alert = UIAlertController(title: "", message: "You have selected Item \(allLists[indexPath.section].items[indexPath.row].id) from Category \(allLists[indexPath.section].id)", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Okay", style: .default))
+        self.present(alert, animated: true)
+        
+        // unselecting the cell once it is tapped
+        tableView.cellForRow(at: indexPath)?.isSelected = false
+    }
 }
 
+
+// MARK: - Delegate UITableViewDataSource
 extension MainController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return allLists.count
@@ -78,6 +101,7 @@ extension MainController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let section = allLists[section]
         
+        // creating simple UI for section
         let customView = UIView()
         customView.backgroundColor = .lightGray
         
@@ -94,14 +118,17 @@ extension MainController: UITableViewDataSource {
         return customView
     }
     
+    // remove footerView to remove padding after each section
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return nil
     }
     
+    // setting height of tableView section to 20 (hardcoded)
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 20
     }
-    
+
+    // setting height of tableView section to 0
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
@@ -110,6 +137,7 @@ extension MainController: UITableViewDataSource {
         return allLists[section].items.count
     }
     
+    // setting height of tableView row to 40 (hardcoded)
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 40
     }

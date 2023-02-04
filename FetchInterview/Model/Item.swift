@@ -7,6 +7,7 @@
 
 import Foundation
 
+// model class for Item objects
 class Item {
     let id: Int
     let name: String

@@ -7,6 +7,11 @@
 
 import UIKit
 
+//protocol ItemCellDelegate: AnyObject {
+//    func didTap(onCell cell: ItemCell)
+//}
+
+// UI & Logic for ItemCell
 class ItemCell: UITableViewCell {
     //MARK: - Properties
     var item: Item? {
@@ -15,6 +20,8 @@ class ItemCell: UITableViewCell {
             itemLabel.text = item.name
         }
     }
+    
+//    weak var delegate: ItemCellDelegate?
     
     //MARK: - UI Elements
     let itemLabel: UILabel = {
@@ -32,10 +39,19 @@ class ItemCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         configureCell()
+//
+//        self.isUserInteractionEnabled = true
+//        self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    //MARK: - Selectors
+    @objc func handleTap() {
+        // passing onTap callback to assigned delegators
+        // self.delegate?.didTap(onCell: self)
     }
     
     //MARK: - Helper Functions
@@ -48,7 +64,7 @@ class ItemCell: UITableViewCell {
         mainStack.spacing = 10
         mainStack.semanticContentAttribute = .spatial
         
-        addSubview(mainStack)
+        self.addSubview(mainStack)
         mainStack.anchor(top: topAnchor, left: leftAnchor, bottom: bottomAnchor, right: rightAnchor, paddingLeft: 18, paddingRight: 18)
     }
 }

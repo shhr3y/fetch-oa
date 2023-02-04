@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+// model class for List objects
 class List {
     let id: Int
     var items: [Item] {
